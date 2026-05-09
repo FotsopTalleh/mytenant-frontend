@@ -9,38 +9,290 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as InviteRouteImport } from './routes/invite'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as TenantRouteImport } from './routes/_tenant'
+import { Route as LandlordRouteImport } from './routes/_landlord'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TenantTenantUploadRouteImport } from './routes/_tenant.tenant.upload'
+import { Route as TenantTenantReceiptsRouteImport } from './routes/_tenant.tenant.receipts'
+import { Route as TenantTenantPaymentsRouteImport } from './routes/_tenant.tenant.payments'
+import { Route as TenantTenantNotificationsRouteImport } from './routes/_tenant.tenant.notifications'
+import { Route as TenantTenantDashboardRouteImport } from './routes/_tenant.tenant.dashboard'
+import { Route as LandlordLandlordTenantsRouteImport } from './routes/_landlord.landlord.tenants'
+import { Route as LandlordLandlordReceiptsRouteImport } from './routes/_landlord.landlord.receipts'
+import { Route as LandlordLandlordPropertiesRouteImport } from './routes/_landlord.landlord.properties'
+import { Route as LandlordLandlordNotificationsRouteImport } from './routes/_landlord.landlord.notifications'
+import { Route as LandlordLandlordDashboardRouteImport } from './routes/_landlord.landlord.dashboard'
+import { Route as LandlordLandlordPaymentsReviewRouteImport } from './routes/_landlord.landlord.payments.review'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteRoute = InviteRouteImport.update({
+  id: '/invite',
+  path: '/invite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TenantRoute = TenantRouteImport.update({
+  id: '/_tenant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandlordRoute = LandlordRouteImport.update({
+  id: '/_landlord',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TenantTenantUploadRoute = TenantTenantUploadRouteImport.update({
+  id: '/tenant/upload',
+  path: '/tenant/upload',
+  getParentRoute: () => TenantRoute,
+} as any)
+const TenantTenantReceiptsRoute = TenantTenantReceiptsRouteImport.update({
+  id: '/tenant/receipts',
+  path: '/tenant/receipts',
+  getParentRoute: () => TenantRoute,
+} as any)
+const TenantTenantPaymentsRoute = TenantTenantPaymentsRouteImport.update({
+  id: '/tenant/payments',
+  path: '/tenant/payments',
+  getParentRoute: () => TenantRoute,
+} as any)
+const TenantTenantNotificationsRoute =
+  TenantTenantNotificationsRouteImport.update({
+    id: '/tenant/notifications',
+    path: '/tenant/notifications',
+    getParentRoute: () => TenantRoute,
+  } as any)
+const TenantTenantDashboardRoute = TenantTenantDashboardRouteImport.update({
+  id: '/tenant/dashboard',
+  path: '/tenant/dashboard',
+  getParentRoute: () => TenantRoute,
+} as any)
+const LandlordLandlordTenantsRoute = LandlordLandlordTenantsRouteImport.update({
+  id: '/landlord/tenants',
+  path: '/landlord/tenants',
+  getParentRoute: () => LandlordRoute,
+} as any)
+const LandlordLandlordReceiptsRoute =
+  LandlordLandlordReceiptsRouteImport.update({
+    id: '/landlord/receipts',
+    path: '/landlord/receipts',
+    getParentRoute: () => LandlordRoute,
+  } as any)
+const LandlordLandlordPropertiesRoute =
+  LandlordLandlordPropertiesRouteImport.update({
+    id: '/landlord/properties',
+    path: '/landlord/properties',
+    getParentRoute: () => LandlordRoute,
+  } as any)
+const LandlordLandlordNotificationsRoute =
+  LandlordLandlordNotificationsRouteImport.update({
+    id: '/landlord/notifications',
+    path: '/landlord/notifications',
+    getParentRoute: () => LandlordRoute,
+  } as any)
+const LandlordLandlordDashboardRoute =
+  LandlordLandlordDashboardRouteImport.update({
+    id: '/landlord/dashboard',
+    path: '/landlord/dashboard',
+    getParentRoute: () => LandlordRoute,
+  } as any)
+const LandlordLandlordPaymentsReviewRoute =
+  LandlordLandlordPaymentsReviewRouteImport.update({
+    id: '/landlord/payments/review',
+    path: '/landlord/payments/review',
+    getParentRoute: () => LandlordRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/invite': typeof InviteRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/landlord/dashboard': typeof LandlordLandlordDashboardRoute
+  '/landlord/notifications': typeof LandlordLandlordNotificationsRoute
+  '/landlord/properties': typeof LandlordLandlordPropertiesRoute
+  '/landlord/receipts': typeof LandlordLandlordReceiptsRoute
+  '/landlord/tenants': typeof LandlordLandlordTenantsRoute
+  '/tenant/dashboard': typeof TenantTenantDashboardRoute
+  '/tenant/notifications': typeof TenantTenantNotificationsRoute
+  '/tenant/payments': typeof TenantTenantPaymentsRoute
+  '/tenant/receipts': typeof TenantTenantReceiptsRoute
+  '/tenant/upload': typeof TenantTenantUploadRoute
+  '/landlord/payments/review': typeof LandlordLandlordPaymentsReviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/invite': typeof InviteRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/landlord/dashboard': typeof LandlordLandlordDashboardRoute
+  '/landlord/notifications': typeof LandlordLandlordNotificationsRoute
+  '/landlord/properties': typeof LandlordLandlordPropertiesRoute
+  '/landlord/receipts': typeof LandlordLandlordReceiptsRoute
+  '/landlord/tenants': typeof LandlordLandlordTenantsRoute
+  '/tenant/dashboard': typeof TenantTenantDashboardRoute
+  '/tenant/notifications': typeof TenantTenantNotificationsRoute
+  '/tenant/payments': typeof TenantTenantPaymentsRoute
+  '/tenant/receipts': typeof TenantTenantReceiptsRoute
+  '/tenant/upload': typeof TenantTenantUploadRoute
+  '/landlord/payments/review': typeof LandlordLandlordPaymentsReviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_landlord': typeof LandlordRouteWithChildren
+  '/_tenant': typeof TenantRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/invite': typeof InviteRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/_landlord/landlord/dashboard': typeof LandlordLandlordDashboardRoute
+  '/_landlord/landlord/notifications': typeof LandlordLandlordNotificationsRoute
+  '/_landlord/landlord/properties': typeof LandlordLandlordPropertiesRoute
+  '/_landlord/landlord/receipts': typeof LandlordLandlordReceiptsRoute
+  '/_landlord/landlord/tenants': typeof LandlordLandlordTenantsRoute
+  '/_tenant/tenant/dashboard': typeof TenantTenantDashboardRoute
+  '/_tenant/tenant/notifications': typeof TenantTenantNotificationsRoute
+  '/_tenant/tenant/payments': typeof TenantTenantPaymentsRoute
+  '/_tenant/tenant/receipts': typeof TenantTenantReceiptsRoute
+  '/_tenant/tenant/upload': typeof TenantTenantUploadRoute
+  '/_landlord/landlord/payments/review': typeof LandlordLandlordPaymentsReviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/forgot-password'
+    | '/invite'
+    | '/login'
+    | '/signup'
+    | '/landlord/dashboard'
+    | '/landlord/notifications'
+    | '/landlord/properties'
+    | '/landlord/receipts'
+    | '/landlord/tenants'
+    | '/tenant/dashboard'
+    | '/tenant/notifications'
+    | '/tenant/payments'
+    | '/tenant/receipts'
+    | '/tenant/upload'
+    | '/landlord/payments/review'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/forgot-password'
+    | '/invite'
+    | '/login'
+    | '/signup'
+    | '/landlord/dashboard'
+    | '/landlord/notifications'
+    | '/landlord/properties'
+    | '/landlord/receipts'
+    | '/landlord/tenants'
+    | '/tenant/dashboard'
+    | '/tenant/notifications'
+    | '/tenant/payments'
+    | '/tenant/receipts'
+    | '/tenant/upload'
+    | '/landlord/payments/review'
+  id:
+    | '__root__'
+    | '/'
+    | '/_landlord'
+    | '/_tenant'
+    | '/forgot-password'
+    | '/invite'
+    | '/login'
+    | '/signup'
+    | '/_landlord/landlord/dashboard'
+    | '/_landlord/landlord/notifications'
+    | '/_landlord/landlord/properties'
+    | '/_landlord/landlord/receipts'
+    | '/_landlord/landlord/tenants'
+    | '/_tenant/tenant/dashboard'
+    | '/_tenant/tenant/notifications'
+    | '/_tenant/tenant/payments'
+    | '/_tenant/tenant/receipts'
+    | '/_tenant/tenant/upload'
+    | '/_landlord/landlord/payments/review'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LandlordRoute: typeof LandlordRouteWithChildren
+  TenantRoute: typeof TenantRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  InviteRoute: typeof InviteRoute
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite': {
+      id: '/invite'
+      path: '/invite'
+      fullPath: '/invite'
+      preLoaderRoute: typeof InviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_tenant': {
+      id: '/_tenant'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof TenantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_landlord': {
+      id: '/_landlord'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof LandlordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +300,136 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_tenant/tenant/upload': {
+      id: '/_tenant/tenant/upload'
+      path: '/tenant/upload'
+      fullPath: '/tenant/upload'
+      preLoaderRoute: typeof TenantTenantUploadRouteImport
+      parentRoute: typeof TenantRoute
+    }
+    '/_tenant/tenant/receipts': {
+      id: '/_tenant/tenant/receipts'
+      path: '/tenant/receipts'
+      fullPath: '/tenant/receipts'
+      preLoaderRoute: typeof TenantTenantReceiptsRouteImport
+      parentRoute: typeof TenantRoute
+    }
+    '/_tenant/tenant/payments': {
+      id: '/_tenant/tenant/payments'
+      path: '/tenant/payments'
+      fullPath: '/tenant/payments'
+      preLoaderRoute: typeof TenantTenantPaymentsRouteImport
+      parentRoute: typeof TenantRoute
+    }
+    '/_tenant/tenant/notifications': {
+      id: '/_tenant/tenant/notifications'
+      path: '/tenant/notifications'
+      fullPath: '/tenant/notifications'
+      preLoaderRoute: typeof TenantTenantNotificationsRouteImport
+      parentRoute: typeof TenantRoute
+    }
+    '/_tenant/tenant/dashboard': {
+      id: '/_tenant/tenant/dashboard'
+      path: '/tenant/dashboard'
+      fullPath: '/tenant/dashboard'
+      preLoaderRoute: typeof TenantTenantDashboardRouteImport
+      parentRoute: typeof TenantRoute
+    }
+    '/_landlord/landlord/tenants': {
+      id: '/_landlord/landlord/tenants'
+      path: '/landlord/tenants'
+      fullPath: '/landlord/tenants'
+      preLoaderRoute: typeof LandlordLandlordTenantsRouteImport
+      parentRoute: typeof LandlordRoute
+    }
+    '/_landlord/landlord/receipts': {
+      id: '/_landlord/landlord/receipts'
+      path: '/landlord/receipts'
+      fullPath: '/landlord/receipts'
+      preLoaderRoute: typeof LandlordLandlordReceiptsRouteImport
+      parentRoute: typeof LandlordRoute
+    }
+    '/_landlord/landlord/properties': {
+      id: '/_landlord/landlord/properties'
+      path: '/landlord/properties'
+      fullPath: '/landlord/properties'
+      preLoaderRoute: typeof LandlordLandlordPropertiesRouteImport
+      parentRoute: typeof LandlordRoute
+    }
+    '/_landlord/landlord/notifications': {
+      id: '/_landlord/landlord/notifications'
+      path: '/landlord/notifications'
+      fullPath: '/landlord/notifications'
+      preLoaderRoute: typeof LandlordLandlordNotificationsRouteImport
+      parentRoute: typeof LandlordRoute
+    }
+    '/_landlord/landlord/dashboard': {
+      id: '/_landlord/landlord/dashboard'
+      path: '/landlord/dashboard'
+      fullPath: '/landlord/dashboard'
+      preLoaderRoute: typeof LandlordLandlordDashboardRouteImport
+      parentRoute: typeof LandlordRoute
+    }
+    '/_landlord/landlord/payments/review': {
+      id: '/_landlord/landlord/payments/review'
+      path: '/landlord/payments/review'
+      fullPath: '/landlord/payments/review'
+      preLoaderRoute: typeof LandlordLandlordPaymentsReviewRouteImport
+      parentRoute: typeof LandlordRoute
+    }
   }
 }
 
+interface LandlordRouteChildren {
+  LandlordLandlordDashboardRoute: typeof LandlordLandlordDashboardRoute
+  LandlordLandlordNotificationsRoute: typeof LandlordLandlordNotificationsRoute
+  LandlordLandlordPropertiesRoute: typeof LandlordLandlordPropertiesRoute
+  LandlordLandlordReceiptsRoute: typeof LandlordLandlordReceiptsRoute
+  LandlordLandlordTenantsRoute: typeof LandlordLandlordTenantsRoute
+  LandlordLandlordPaymentsReviewRoute: typeof LandlordLandlordPaymentsReviewRoute
+}
+
+const LandlordRouteChildren: LandlordRouteChildren = {
+  LandlordLandlordDashboardRoute: LandlordLandlordDashboardRoute,
+  LandlordLandlordNotificationsRoute: LandlordLandlordNotificationsRoute,
+  LandlordLandlordPropertiesRoute: LandlordLandlordPropertiesRoute,
+  LandlordLandlordReceiptsRoute: LandlordLandlordReceiptsRoute,
+  LandlordLandlordTenantsRoute: LandlordLandlordTenantsRoute,
+  LandlordLandlordPaymentsReviewRoute: LandlordLandlordPaymentsReviewRoute,
+}
+
+const LandlordRouteWithChildren = LandlordRoute._addFileChildren(
+  LandlordRouteChildren,
+)
+
+interface TenantRouteChildren {
+  TenantTenantDashboardRoute: typeof TenantTenantDashboardRoute
+  TenantTenantNotificationsRoute: typeof TenantTenantNotificationsRoute
+  TenantTenantPaymentsRoute: typeof TenantTenantPaymentsRoute
+  TenantTenantReceiptsRoute: typeof TenantTenantReceiptsRoute
+  TenantTenantUploadRoute: typeof TenantTenantUploadRoute
+}
+
+const TenantRouteChildren: TenantRouteChildren = {
+  TenantTenantDashboardRoute: TenantTenantDashboardRoute,
+  TenantTenantNotificationsRoute: TenantTenantNotificationsRoute,
+  TenantTenantPaymentsRoute: TenantTenantPaymentsRoute,
+  TenantTenantReceiptsRoute: TenantTenantReceiptsRoute,
+  TenantTenantUploadRoute: TenantTenantUploadRoute,
+}
+
+const TenantRouteWithChildren =
+  TenantRoute._addFileChildren(TenantRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LandlordRoute: LandlordRouteWithChildren,
+  TenantRoute: TenantRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  InviteRoute: InviteRoute,
+  LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
