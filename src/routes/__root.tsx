@@ -117,7 +117,15 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ThemeBoot />
       <Outlet />
+      <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );
+}
+
+function ThemeBoot() {
+  const init = useThemeStore((s) => s.init);
+  useEffect(() => init(), [init]);
+  return null;
 }
