@@ -13,6 +13,7 @@ import { loginSchema, type LoginInput } from "@/lib/schemas/auth.schemas";
 import { useAuthStore } from "@/store/authStore";
 import { AuthShell } from "@/components/layout/AuthShell";
 import { GoogleButton } from "@/components/common/GoogleButton";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -36,16 +37,16 @@ function LoginPage() {
 
   const login = useMutation({
     mutationFn: (v: LoginInput) => authApi.login(v.email, v.password),
-    onSuccess: ({ user, token }) => {
-      setAuth(user, token);
+    onSuccess: ({ user, accessToken }) => {
+      setAuth(user, accessToken);
       navigate({ to: user.role === "landlord" ? "/landlord/dashboard" : "/tenant/dashboard" });
     },
   });
 
   const google = useMutation({
-    mutationFn: () => authApi.googleLogin("mock-credential"),
-    onSuccess: ({ user, token }) => {
-      setAuth(user, token);
+    mutationFn: (credential: string) => authApi.googleLogin(credential),
+    onSuccess: ({ user, accessToken }) => {
+      setAuth(user, accessToken);
       navigate({ to: user.role === "landlord" ? "/landlord/dashboard" : "/tenant/dashboard" });
     },
   });
@@ -65,24 +66,31 @@ function LoginPage() {
     >
       <form onSubmit={form.handleSubmit((v) => login.mutate(v))} className="space-y-4" noValidate>
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email" className={cn(form.formState.errors.email && "text-destructive")}>
+            Email
+          </Label>
           <Input
             id="email"
             type="email"
             autoComplete="email"
             placeholder="you@example.com"
-            className="rounded-xl h-11"
+            className={cn("rounded-xl h-11", form.formState.errors.email && "border-destructive focus-visible:ring-destructive")}
             aria-invalid={!!form.formState.errors.email}
             {...form.register("email")}
           />
           {form.formState.errors.email && (
-            <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>
+            <p className="flex items-center gap-1 text-xs text-destructive">
+              <AlertCircle className="h-3 w-3 shrink-0" />
+              {form.formState.errors.email.message}
+            </p>
           )}
         </div>
 
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className={cn(form.formState.errors.password && "text-destructive")}>
+              Password
+            </Label>
             <Link to="/forgot-password" className="text-xs text-primary hover:underline">
               Forgot password?
             </Link>
@@ -93,7 +101,7 @@ function LoginPage() {
               type={showPw ? "text" : "password"}
               autoComplete="current-password"
               placeholder="••••••••"
-              className="rounded-xl h-11 pr-10"
+              className={cn("rounded-xl h-11 pr-10", form.formState.errors.password && "border-destructive focus-visible:ring-destructive")}
               aria-invalid={!!form.formState.errors.password}
               {...form.register("password")}
             />
@@ -107,7 +115,10 @@ function LoginPage() {
             </button>
           </div>
           {form.formState.errors.password && (
-            <p className="text-xs text-destructive">{form.formState.errors.password.message}</p>
+            <p className="flex items-center gap-1 text-xs text-destructive">
+              <AlertCircle className="h-3 w-3 shrink-0" />
+              {form.formState.errors.password.message}
+            </p>
           )}
         </div>
 
@@ -134,11 +145,12 @@ function LoginPage() {
           </div>
         </div>
 
-        <GoogleButton onClick={() => google.mutate()} loading={google.isPending} label="Continue with Google" />
+        <GoogleButton
+          onCredential={(credential) => google.mutate(credential)}
+          loading={google.isPending}
+        />
 
-        <p className="text-[11px] text-muted-foreground text-center pt-2">
-          Tip: emails starting with "tenant" sign in as a tenant.
-        </p>
+
       </form>
     </AuthShell>
   );

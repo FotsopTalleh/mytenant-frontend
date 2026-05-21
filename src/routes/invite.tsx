@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -25,7 +25,6 @@ export const Route = createFileRoute("/invite")({
 
 function InvitePage() {
   const { token } = Route.useSearch();
-  const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
 
   const verify = useQuery({
@@ -43,9 +42,18 @@ function InvitePage() {
   const submit = useMutation({
     mutationFn: (v: InviteInput) =>
       authApi.registerTenantViaInvite(token ?? "", { fullName: v.fullName, password: v.password }),
-    onSuccess: ({ user, token: t }) => {
-      setAuth(user, t);
-      navigate({ to: "/tenant/dashboard" });
+    onSuccess: ({ user, accessToken }) => {
+      setAuth(user, accessToken);
+      // Hard redirect — Zustand persist writes to localStorage synchronously before
+      // this line. The full page load lets it rehydrate before the guarded
+      // /_tenant layout mounts, avoiding the SSR navigation race condition.
+      window.location.href = "/tenant/dashboard";
+    },
+    onError: (e: unknown) => {
+      const msg = (e as { message?: string })?.message;
+      form.setError("root", {
+        message: msg ?? "Something went wrong. Please try again.",
+      });
     },
   });
 
@@ -85,6 +93,7 @@ function InvitePage() {
       title="You've been invited"
       subtitle={`Set up your tenant account for ${data.propertyName}`}
     >
+      {/* Property preview card */}
       <div className="rounded-2xl border border-border bg-muted/40 p-4 mb-5">
         <div className="flex items-start gap-3">
           <div className="h-10 w-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
@@ -93,7 +102,7 @@ function InvitePage() {
           <div className="text-sm">
             <p className="font-medium">{data.propertyName}</p>
             <p className="text-muted-foreground">Landlord: {data.landlordName}</p>
-            <p className="text-muted-foreground">Monthly rent: <span className="text-foreground font-medium">{formatCurrency(data.monthlyRent, data.currency)}</span></p>
+            <p className="text-muted-foreground">Monthly rent: <span className="text-foreground font-medium">{formatCurrency(data.monthlyRent)}</span></p>
           </div>
         </div>
       </div>
@@ -118,9 +127,21 @@ function InvitePage() {
           <Input type="password" className="rounded-xl h-11" {...form.register("confirmPassword")} />
           {form.formState.errors.confirmPassword && <p className="text-xs text-destructive">{form.formState.errors.confirmPassword.message}</p>}
         </div>
+
+        {/* Server error banner */}
+        {form.formState.errors.root && (
+          <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2.5">
+            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+            <span>{form.formState.errors.root.message}</span>
+          </div>
+        )}
+
         <Button type="submit" disabled={submit.isPending} className="w-full h-11 rounded-xl">
-          {submit.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
-          Accept invite & continue
+          {submit.isPending
+            ? <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            : <CheckCircle2 className="h-4 w-4 mr-2" />
+          }
+          Accept invite &amp; continue
         </Button>
       </form>
     </AuthShell>

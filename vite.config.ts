@@ -12,4 +12,25 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      // Dev proxy: /api/* → Flask backend (avoids CORS issues in dev)
+      proxy: {
+        "/api": {
+          target: "http://localhost:5000",
+          changeOrigin: true,
+          // Strip the /api prefix before forwarding to Flask
+          rewrite: (path) => path.replace(/^\/api/, ""),
+          // Forward cookies (required for httpOnly refresh_token)
+          configure: (proxy) => {
+            proxy.on("proxyReq", (_proxyReq, req) => {
+              if (req.headers.cookie) {
+                _proxyReq.setHeader("cookie", req.headers.cookie);
+              }
+            });
+          },
+        },
+      },
+    },
+  },
 });

@@ -1,79 +1,97 @@
-import { mockDelay } from "./axiosClient";
-import type { User, UserRole } from "@/store/authStore";
+import { axiosClient } from "./axiosClient";
+import type { User } from "@/store/authStore";
 
-const makeToken = (role: UserRole) =>
-  `mock.${btoa(JSON.stringify({ role, exp: Date.now() + 3600_000 }))}.sig`;
+// ── Response shapes from Flask ────────────────────────────────────────────────
 
 export interface LoginResponse {
   user: User;
-  token: string;
+  accessToken: string;
 }
 
+export interface InvitePreview {
+  email: string;
+  propertyName: string;
+  landlordName: string;
+  monthlyRent: number;
+}
+
+// ── Helper: map Flask user object → frontend User ─────────────────────────────
+function mapUser(raw: Record<string, unknown>): User {
+  return {
+    id:        raw.id as string,
+    name:      (raw.fullName ?? raw.name ?? "") as string,
+    email:     raw.email as string,
+    role:      raw.role as "landlord" | "tenant",
+    phone:     raw.phone as string | undefined,
+    avatarUrl: raw.avatarUrl as string | undefined,
+  };
+}
+
+// ── Auth API ──────────────────────────────────────────────────────────────────
 export const authApi = {
-  async login(email: string, _password: string): Promise<LoginResponse> {
-    await mockDelay();
-    const role: UserRole = email.toLowerCase().startsWith("tenant") ? "tenant" : "landlord";
-    const user: User = {
-      id: "u_" + Math.random().toString(36).slice(2, 8),
-      name: role === "tenant" ? "Tenant Demo" : "Landlord Demo",
-      email,
-      role,
-    };
-    return { user, token: makeToken(role) };
+
+  async login(email: string, password: string): Promise<LoginResponse> {
+    const { data } = await axiosClient.post<{ data: { user: Record<string, unknown>; accessToken: string } }>(
+      "/auth/login",
+      { email, password }
+    );
+    return { user: mapUser(data.data.user), accessToken: data.data.accessToken };
   },
 
-  async signupLandlord(data: { fullName: string; email: string; phone: string; password: string }): Promise<LoginResponse> {
-    await mockDelay();
-    const user: User = {
-      id: "u_" + Math.random().toString(36).slice(2, 8),
-      name: data.fullName,
-      email: data.email,
-      role: "landlord",
-    };
-    return { user, token: makeToken("landlord") };
+  async signupLandlord(body: {
+    fullName: string;
+    email: string;
+    phone: string;
+    password: string;
+  }): Promise<LoginResponse> {
+    const { data } = await axiosClient.post<{ data: { user: Record<string, unknown>; accessToken: string } }>(
+      "/auth/signup",
+      body
+    );
+    return { user: mapUser(data.data.user), accessToken: data.data.accessToken };
   },
 
-  async googleLogin(_credential: string): Promise<LoginResponse> {
-    await mockDelay(400);
-    const user: User = {
-      id: "u_google",
-      name: "Google User",
-      email: "google.user@example.com",
-      role: "landlord",
-    };
-    return { user, token: makeToken("landlord") };
+  async googleLogin(credential: string): Promise<LoginResponse> {
+    const { data } = await axiosClient.post<{ data: { user: Record<string, unknown>; accessToken: string } }>(
+      "/auth/google",
+      { credential }
+    );
+    return { user: mapUser(data.data.user), accessToken: data.data.accessToken };
   },
 
-  async verifyInviteToken(token: string) {
-    await mockDelay(400);
-    if (!token || token.length < 4) throw { message: "Invalid or expired invite link" };
-    return {
-      email: "newtenant@example.com",
-      propertyName: "Sunshine Apartments — Unit 4B",
-      landlordName: "Adaeze Okafor",
-      monthlyRent: 75000,
-      currency: "NGN",
-    };
+  async verifyInviteToken(token: string): Promise<InvitePreview> {
+    const { data } = await axiosClient.get<{ data: InvitePreview }>(
+      `/auth/invite/${token}/verify`
+    );
+    return data.data;
   },
 
-  async registerTenantViaInvite(_token: string, data: { fullName: string; password: string }): Promise<LoginResponse> {
-    await mockDelay();
-    const user: User = {
-      id: "u_" + Math.random().toString(36).slice(2, 8),
-      name: data.fullName,
-      email: "newtenant@example.com",
-      role: "tenant",
-    };
-    return { user, token: makeToken("tenant") };
+  async registerTenantViaInvite(
+    token: string,
+    body: { fullName: string; password: string }
+  ): Promise<LoginResponse> {
+    const { data } = await axiosClient.post<{ data: { user: Record<string, unknown>; accessToken: string } }>(
+      `/auth/invite/${token}/complete`,
+      body
+    );
+    return { user: mapUser(data.data.user), accessToken: data.data.accessToken };
   },
 
-  async forgotPassword(_email: string) {
-    await mockDelay();
-    return { ok: true };
+  async forgotPassword(email: string): Promise<void> {
+    await axiosClient.post("/auth/forgot-password", { email });
   },
 
-  async logout() {
-    await mockDelay(150);
-    return { ok: true };
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    await axiosClient.post("/auth/reset-password", { token, newPassword });
+  },
+
+  async logout(): Promise<void> {
+    await axiosClient.post("/auth/logout");
+  },
+
+  /** Silently refresh access token — called by axiosClient interceptor automatically */
+  async refresh(): Promise<string> {
+    const { data } = await axiosClient.post<{ data: { accessToken: string } }>("/auth/refresh");
+    return data.data.accessToken;
   },
 };

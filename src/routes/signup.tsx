@@ -25,11 +25,15 @@ export const Route = createFileRoute("/signup")({
 });
 
 const dialCodes = [
-  { code: "+234", label: "🇳🇬 +234" },
-  { code: "+233", label: "🇬🇭 +233" },
-  { code: "+254", label: "🇰🇪 +254" },
-  { code: "+27", label: "🇿🇦 +27" },
-  { code: "+221", label: "🇸🇳 +221" },
+  { code: "+237", flag: "CM", label: "CM +237" },  // Cameroon — primary market
+  { code: "+234", flag: "NG", label: "NG +234" },
+  { code: "+233", flag: "GH", label: "GH +233" },
+  { code: "+254", flag: "KE", label: "KE +254" },
+  { code: "+27",  flag: "ZA", label: "ZA +27"  },
+  { code: "+221", flag: "SN", label: "SN +221" },
+  { code: "+225", flag: "CI", label: "CI +225" },
+  { code: "+241", flag: "GA", label: "GA +241" },
+  { code: "+240", flag: "GQ", label: "GQ +240" },
 ];
 
 function SignupPage() {
@@ -39,7 +43,7 @@ function SignupPage() {
 
   const form = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { fullName: "", email: "", phoneCountry: "+234", phone: "", password: "", confirmPassword: "" },
+    defaultValues: { fullName: "", email: "", phoneCountry: "+237", phone: "", password: "", confirmPassword: "" },
   });
 
   const signup = useMutation({
@@ -50,16 +54,16 @@ function SignupPage() {
         phone: `${v.phoneCountry}${v.phone}`,
         password: v.password,
       }),
-    onSuccess: ({ user, token }) => {
-      setAuth(user, token);
+    onSuccess: ({ user, accessToken }) => {
+      setAuth(user, accessToken);
       navigate({ to: "/landlord/dashboard" });
     },
   });
 
   const google = useMutation({
-    mutationFn: () => authApi.googleLogin("mock-credential"),
-    onSuccess: ({ user, token }) => {
-      setAuth(user, token);
+    mutationFn: (credential: string) => authApi.googleLogin(credential),
+    onSuccess: ({ user, accessToken }) => {
+      setAuth(user, accessToken);
       navigate({ to: "/landlord/dashboard" });
     },
   });
@@ -138,7 +142,10 @@ function SignupPage() {
             <span className="bg-card px-2 text-muted-foreground">or</span>
           </div>
         </div>
-        <GoogleButton onClick={() => google.mutate()} loading={google.isPending} label="Continue with Google" />
+        <GoogleButton
+          onCredential={(credential) => google.mutate(credential)}
+          loading={google.isPending}
+        />
       </form>
     </AuthShell>
   );
