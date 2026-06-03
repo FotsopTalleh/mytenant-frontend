@@ -79,34 +79,50 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 // it never touches git or the frontend bundle.
 async function handleApiProxy(request: Request, apiUrl: string): Promise<Response> {
   const url = new URL(request.url);
+  const backendBase = apiUrl.replace(/\/$/, "");
+
   // Strip /api prefix, forward the rest to Flask
   const backendPath = url.pathname.replace(/^\/api/, "") + url.search;
-  const target = `${apiUrl.replace(/\/$/, "")}${backendPath}`;
+  const target = `${backendBase}${backendPath}`;
+  const backendHost = new URL(backendBase).host;
+
+  // Build a clean header set for Flask.
+  // We deliberately DROP Origin and Referer so Flask's CORS middleware sees
+  // the request as same-origin and never blocks it. The Worker is the sole
+  // entry point; Flask doesn't need to know about the Cloudflare domain.
+  const forwardHeaders = new Headers();
+  for (const [key, value] of request.headers.entries()) {
+    const lower = key.toLowerCase();
+    if (lower === "origin" || lower === "referer" || lower === "host") continue;
+    forwardHeaders.set(key, value);
+  }
+  forwardHeaders.set("host", backendHost);
+  // Tell Flask the real client IP (optional but useful for rate-limiting)
+  const clientIp = request.headers.get("cf-connecting-ip");
+  if (clientIp) forwardHeaders.set("x-forwarded-for", clientIp);
 
   const proxyRequest = new Request(target, {
     method:  request.method,
-    headers: request.headers,
+    headers: forwardHeaders,
     body:    ["GET", "HEAD"].includes(request.method) ? undefined : request.body,
-    // Required to stream request bodies (file uploads, etc.)
     duplex: "half",
   } as RequestInit & { duplex: string });
 
   try {
     const response = await fetch(proxyRequest);
-    // Pass through the response but add CORS headers so browsers accept it
+    // Forward the response as-is; add CORS headers so the browser accepts it
     const headers = new Headers(response.headers);
     headers.set("Access-Control-Allow-Origin", url.origin);
     headers.set("Access-Control-Allow-Credentials", "true");
-    return new Response(response.body, {
-      status:  response.status,
-      headers,
-    });
+    // Remove Flask's own CORS header if it sneaked through (avoid duplicates)
+    headers.delete("vary");   // let the Worker control caching
+    return new Response(response.body, { status: response.status, headers });
   } catch (err) {
     console.error("[api-proxy] fetch failed:", err);
-    return new Response(JSON.stringify({ error: { message: "Backend unreachable", code: "PROXY_ERROR" } }), {
-      status: 502,
-      headers: { "content-type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: { message: "Backend unreachable", code: "PROXY_ERROR" } }),
+      { status: 502, headers: { "content-type": "application/json" } }
+    );
   }
 }
 
