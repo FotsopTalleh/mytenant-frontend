@@ -15,12 +15,15 @@ export interface Receipt {
   pdfUrl: string;
   createdAt: string;
   isManual?: boolean;
+  status?: "draft" | "disbursed";
   tenantName?: string;
   landlordName?: string;
   propertyName?: string;
   propertyAddress?: string;
   paymentMethod?: string;
   referenceNumber?: string;
+  notes?: string;
+  periodLabel?: string;
 }
 
 export interface ManualReceiptBody {
@@ -30,6 +33,16 @@ export interface ManualReceiptBody {
   paymentMethod: "cash" | "mobile_money" | "bank_transfer" | "other";
   referenceNumber?: string;
   notes?: string;
+}
+
+export interface DisburseReceiptBody {
+  tenantName?: string;
+  amountPaid?: number;
+  paymentDate?: string;
+  paymentMethod?: string;
+  referenceNumber?: string;
+  notes?: string;
+  periodLabel?: string;
 }
 
 // ── Receipts API ──────────────────────────────────────────────────────────────
@@ -174,6 +187,18 @@ export const receiptsApi = {
    */
   async createManual(body: ManualReceiptBody): Promise<Receipt> {
     const { data } = await axiosClient.post<{ data: Receipt }>("/receipts/manual", body);
+    return data.data;
+  },
+
+  /** Fetch draft receipt data for the landlord edit form. */
+  async getDraft(receiptId: string): Promise<Receipt> {
+    const { data } = await axiosClient.get<{ data: Receipt }>(`/receipts/${receiptId}/draft`);
+    return data.data;
+  },
+
+  /** Landlord finalises the draft receipt (with optional edits) and disburses it to the tenant. */
+  async disburse(receiptId: string, body: DisburseReceiptBody): Promise<Receipt> {
+    const { data } = await axiosClient.patch<{ data: Receipt }>(`/receipts/${receiptId}/disburse`, body);
     return data.data;
   },
 

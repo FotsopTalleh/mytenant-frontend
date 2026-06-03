@@ -33,6 +33,33 @@ export interface SubmitPaymentBody {
   proofFile: File;
 }
 
+
+export interface MonthSummary {
+  month: string;        // "YYYY-MM"
+  totalPaid: number;
+  monthlyRent: number;
+  percentage: number;   // 0–200
+  status: "paid" | "partial" | "unpaid";
+  payments: Array<{
+    id: string;
+    amountPaid: number;
+    paymentDate: string;
+    paymentMethod: string;
+  }>;
+}
+
+export interface CalendarResponse {
+  year: number;
+  months: MonthSummary[];
+  monthlyRent: number;
+}
+
+export interface ApproveResponse {
+  paymentId: string;
+  receiptId: string | null;
+  receiptNumber: string | null;
+}
+
 // ── Payments API ──────────────────────────────────────────────────────────────
 
 export const paymentsApi = {
@@ -70,13 +97,23 @@ export const paymentsApi = {
     return data.data;
   },
 
-  /** Landlord approves a pending payment */
-  async approve(id: string, note?: string): Promise<void> {
-    await axiosClient.patch(`/payments/${id}/approve`, { note });
+  /** Landlord approves a pending payment — returns draft receiptId for the edit dialog */
+  async approve(id: string, note?: string): Promise<ApproveResponse> {
+    const { data } = await axiosClient.patch<{ data: ApproveResponse }>(
+      `/payments/${id}/approve`,
+      { note }
+    );
+    return data.data;
   },
 
   /** Landlord rejects a pending payment */
   async reject(id: string, rejectionReason: string): Promise<void> {
     await axiosClient.patch(`/payments/${id}/reject`, { rejectionReason });
+  },
+
+  /** Fetch 12-month payment calendar for a tenant */
+  async getCalendar(params: { tenantId?: string; year?: number }): Promise<CalendarResponse> {
+    const { data } = await axiosClient.get<{ data: CalendarResponse }>("/payments/calendar", { params });
+    return data.data;
   },
 };

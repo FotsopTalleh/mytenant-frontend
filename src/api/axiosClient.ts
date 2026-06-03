@@ -6,9 +6,19 @@ import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/store/authStore";
 
 // ── Base URL ─────────────────────────────────────────────────────────────────
-// In dev  : Vite proxy forwards /api/* → http://localhost:5000/*
-// In prod : set VITE_API_URL to your deployed Flask URL
-const BASE_URL = import.meta.env.VITE_API_URL ?? "/api";
+// In browser (dev):  Vite proxy forwards /api/* → http://localhost:5000/*
+// In browser (prod): VITE_API_URL should be the deployed Flask base URL
+// On SSR server:     The Vite proxy does NOT run, so we must use the direct
+//                    Flask URL. VITE_API_SSR_URL (or VITE_API_URL) must be set
+//                    to http://localhost:5000 (local) or your production URL.
+//
+// Quick rule:
+//   • Browser  → use /api  (proxied by Vite dev, or your CDN/nginx in prod)
+//   • SSR Node → use VITE_API_SSR_URL ?? VITE_API_URL ?? http://localhost:5000
+const _isServer = typeof window === "undefined";
+const BASE_URL = _isServer
+  ? (import.meta.env.VITE_API_SSR_URL ?? import.meta.env.VITE_API_URL ?? "http://localhost:5000")
+  : (import.meta.env.VITE_API_URL ?? "/api");
 
 export const axiosClient = axios.create({
   baseURL: BASE_URL,

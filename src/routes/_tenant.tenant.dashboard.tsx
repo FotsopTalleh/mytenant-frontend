@@ -6,6 +6,8 @@ import { formatCurrency, formatDate } from "@/utils/format";
 import { tenantsApi, paymentsApi } from "@/api";
 import type { Payment } from "@/api";
 import { useAuthStore } from "@/store/authStore";
+import { PaymentCalendar } from "@/components/payments/PaymentCalendar";
+
 
 export const Route = createFileRoute("/_tenant/tenant/dashboard")({
   head: () => ({ meta: [{ title: "Home — MyTenant" }] }),
@@ -137,6 +139,9 @@ function TenantDashboard() {
           </p>
         </section>
       )}
+      {/* ── 12-month Payment Calendar ──────────────────────────────────────── */}
+      <PaymentCalendar />
+
     </div>
   );
 }

@@ -11,6 +11,6 @@ export { axiosClient } from "./axiosClient";
 export type { LoginResponse, InvitePreview } from "./auth.api";
 export type { Property, PaginatedResponse, CreatePropertyBody } from "./properties.api";
 export type { Tenant, InviteBody, InviteResult } from "./tenants.api";
-export type { Payment, SubmitPaymentBody } from "./payments.api";
-export type { Receipt, ManualReceiptBody } from "./receipts.api";
+export type { Payment, SubmitPaymentBody, MonthSummary, CalendarResponse, ApproveResponse } from "./payments.api";
+export type { Receipt, ManualReceiptBody, DisburseReceiptBody } from "./receipts.api";
 export type { AppNotification } from "./notifications.api";
